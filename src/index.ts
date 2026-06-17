@@ -1,76 +1,51 @@
 import { Telegraf } from 'telegraf';
 import http from 'http';
 
-console.log('[SYSTEM]: Инициализация ядра SunLagom AI...');
-
+// 1. Инициализация
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const WEBHOOK_URL = process.env.RENDER_EXTERNAL_URL; // Render сам подставит свой адрес сюда
+const PORT = process.env.PORT || 10000;
+const RENDER_URL = process.env.RENDER_EXTERNAL_URL;
 
 if (!BOT_TOKEN) {
-    console.error('[CRITICAL ERROR]: TELEGRAM_BOT_TOKEN не найден!');
+    console.error('Ошибка: TELEGRAM_BOT_TOKEN не задан!');
     process.exit(1);
 }
 
 const bot = new Telegraf(BOT_TOKEN);
 
-// --- Базовые команды ---
-bot.start(async (ctx) => {
-    await ctx.reply('⚡ Welcome to SunLagom AI Core! ⚡\n\nПривет! Бот успешно работает на серверах Render. Система готова к оптимизации контента!');
-});
+// 2. Команды бота
+bot.start((ctx) => ctx.reply('Бот запущен и готов к работе!'));
+bot.on('text', (ctx) => ctx.reply(`Ты написал: ${ctx.message.text}`));
 
-bot.on('text', async (ctx) => {
-    const messageText = ctx.message.text;
-    console.log(`[WEBHOOK_MSG]: Получено: "${messageText}"`);
-    await ctx.reply(`SunLagom AI принял твой запрос: "${messageText}"`);
-});
-
-// --- Сервер для приема Webhook от Telegram ---
-const PORT = process.env.PORT || 10000;
-const server = http.createServer(async (req, res) => {
+// 3. Сервер для Webhook
+const server = http.createServer((req, res) => {
     if (req.method === 'POST' && req.url === `/bot${BOT_TOKEN}`) {
         let body = '';
         req.on('data', chunk => { body += chunk; });
         req.on('end', async () => {
             try {
-                const update = JSON.parse(body);
-                await bot.handleUpdate(update);
+                await bot.handleUpdate(JSON.parse(body));
                 res.writeHead(200);
-                res.end(JSON.stringify({ ok: true }));
-            } catch (err) {
-                console.error('[WEBHOOK_ERROR]: Ошибка обработки:', err);
+                res.end();
+            } catch (e) {
                 res.writeHead(500);
                 res.end();
             }
         });
     } else {
         res.writeHead(200);
-        res.end('SunLagom AI Container: RUNNING PERFECTLY');
+        res.end('Bot is running');
     }
 });
 
-// --- Запуск ---
+// 4. Запуск
 server.listen(PORT, async () => {
-    console.log(`[SYSTEM]: Сервер запущен на порту ${PORT}`);
+    console.log(`Сервер слушает порт ${PORT}`);
     
-    if (WEBHOOK_URL) {
-        try {
-            const webhookPath = `${WEBHOOK_URL}/bot${BOT_TOKEN}`;
-            await bot.telegram.setWebhook(webhookPath);
-            console.log(`[SYSTEM]: Webhook успешно установлен на: ${webhookPath}`);
-        } catch (error) {
-            console.error('[SYSTEM_ERROR]: Не удалось установить Webhook:', error);
-        }
-    } else {
-        console.warn('[WARNING]: Переменная RENDER_EXTERNAL_URL не задана. Webhook не установлен.');
+    // Автоматическая установка Webhook
+    if (RENDER_URL) {
+        const url = `${RENDER_URL}/bot${BOT_TOKEN}`;
+        await bot.telegram.setWebhook(url);
+        console.log(`Webhook установлен на ${url}`);
     }
-});
-
-// --- Обработка завершения ---
-process.once('SIGINT', () => { 
-    console.log('[SYSTEM]: Остановка бота...');
-    process.exit(0); 
-});
-process.once('SIGTERM', () => { 
-    console.log('[SYSTEM]: Остановка бота...');
-    process.exit(0); 
 });
