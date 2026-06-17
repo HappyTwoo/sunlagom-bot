@@ -1,0 +1,30 @@
+{
+  "name": "sunlagom-ai-core-bot",
+  "version": "1.1.0",
+  "description": "Enterprise-grade AI Telegram automation core developed for SunLagom",
+  "main": "dist/index.js",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "tsc",
+    "prestart": "npm run build",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "telegraf",
+    "typescript",
+    "huggingface",
+    "sunlagom",
+    "ai"
+  ],
+  "author": "Yura & Jimi Co.",
+  "license": "ISC",
+  "dependencies": {
+    "telegraf": "4.16.3"
+  },
+  "devDependencies": {
+    "@types/node": "20.11.0",
+    "typescript": "5.3.3"
+  }
+}
