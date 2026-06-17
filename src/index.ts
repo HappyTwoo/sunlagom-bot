@@ -20,7 +20,7 @@ async function getAIResponse(userText: string) {
         console.log(`[AI] Запрос к OpenRouter: "${userText}"`);
         
         const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
-            model: 'google/gemini-flash-1.5-pro',
+            model: model: 'google/gemini-flash-1.5-flash',
             messages: [{ role: 'user', content: userText }]
         }, {
             headers: { 
