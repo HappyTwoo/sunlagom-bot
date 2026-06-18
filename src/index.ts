@@ -14,19 +14,19 @@ if (!BOT_TOKEN || !API_KEY) {
 
 const bot = new Telegraf(BOT_TOKEN);
 
-// Улучшенная функция запроса с подробным логированием ошибок
+// Исправленная функция запроса
 async function getAIResponse(userText: string) {
     try {
         console.log(`[AI] Запрос к OpenRouter: "${userText}"`);
         
         const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
-            model: model: model: 'google/gemini-1.5-flash',
+            model: 'google/gemini-1.5-flash',
             messages: [{ role: 'user', content: userText }]
         }, {
             headers: { 
                 'Authorization': `Bearer ${API_KEY}`,
-                'HTTP-Referer': RENDER_URL || 'https://render.com', // Требуется OpenRouter
-                'X-Title': 'SunLagom Bot' // Требуется OpenRouter
+                'HTTP-Referer': RENDER_URL || 'https://render.com',
+                'X-Title': 'SunLagom Bot'
             }
         });
 
@@ -37,7 +37,7 @@ async function getAIResponse(userText: string) {
         } else {
             console.error('[AI NETWORK ERROR]:', error.message);
         }
-        return 'Прости, произошла ошибка при связи с мозгом нейросети. Проверь логи Render!';
+        return 'Прости, произошла ошибка при связи с нейросетью.';
     }
 }
 
